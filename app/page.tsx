@@ -11,6 +11,7 @@ import {
   ChevronRight, Sparkles, PieChart as PieChartIcon, Table, PlusCircle, Shield, CheckSquare, Trash2, RefreshCcw, Book, Newspaper,
   FileDown, Loader2
 } from 'lucide-react';
+import { Toaster } from 'sonner';
 import { useExportPDF } from '@/hooks/use-export-pdf';
 
 // --- DATA ---
@@ -50,6 +51,7 @@ interface NavButtonProps {
   icon: React.ReactNode;
   title: string;
   subtitle: string;
+  disabled?: boolean;
 }
 
 interface ListItemProps {
@@ -103,8 +105,9 @@ export default function App() {
     const currentTab = activeTab;
     try {
       await exportPDF();
+    } catch {
+      // Error is already shown as a toast inside useExportPDF
     } finally {
-      // Restore the tab the user was on before export
       setActiveTab(currentTab);
     }
   }, [activeTab, exportPDF, setActiveTab]);
@@ -114,7 +117,8 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans text-slate-800 overflow-hidden selection:bg-sky-300 selection:text-slate-900">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans text-slate-800 overflow-x-hidden selection:bg-sky-300 selection:text-slate-900">
+      <Toaster richColors position="top-right" />
       
       {/* GLOBAL BACKGROUND ELEMENTS */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.03] mix-blend-multiply" 
@@ -146,27 +150,27 @@ export default function App() {
 
         <nav className="flex-1 px-6 space-y-4 mt-2">
           <NavButton 
-            active={activeTab === 1} onClick={() => setActiveTab(1)} 
+            active={activeTab === 1} onClick={() => setActiveTab(1)} disabled={isExporting}
             icon={<Activity size={22} />} title="Tarea 1" subtitle="Foco en el Margen" 
           />
           <NavButton 
-            active={activeTab === 2} onClick={() => setActiveTab(2)} 
+            active={activeTab === 2} onClick={() => setActiveTab(2)} disabled={isExporting}
             icon={<HeartHandshake size={22} />} title="Tarea 2" subtitle="Retención de Clientes" 
           />
           <NavButton 
-            active={activeTab === 3} onClick={() => setActiveTab(3)} 
+            active={activeTab === 3} onClick={() => setActiveTab(3)} disabled={isExporting}
             icon={<Book size={22} />} title="Tarea 3" subtitle="Libro de Estrategia" 
           />
           <NavButton 
-            active={activeTab === 4} onClick={() => setActiveTab(4)} 
+            active={activeTab === 4} onClick={() => setActiveTab(4)} disabled={isExporting}
             icon={<Lightbulb size={22} />} title="Tarea 4" subtitle="Cultura Innovadora" 
           />
           <NavButton 
-            active={activeTab === 5} onClick={() => setActiveTab(5)} 
+            active={activeTab === 5} onClick={() => setActiveTab(5)} disabled={isExporting}
             icon={<RefreshCcw size={22} />} title="Tarea 5" subtitle="Rueda de Desarrollo" 
           />
           <NavButton 
-            active={activeTab === 6} onClick={() => setActiveTab(6)} 
+            active={activeTab === 6} onClick={() => setActiveTab(6)} disabled={isExporting}
             icon={<Newspaper size={22} />} title="Tarea 6" subtitle="Visión 360" 
           />
         </nav>
@@ -221,7 +225,7 @@ export default function App() {
           {activeTab === 2 && <div ref={setTaskRef(1)}><Task2 /></div>}
           {activeTab === 3 && <div ref={setTaskRef(2)}><Task3 /></div>}
           {activeTab === 4 && <div ref={setTaskRef(3)}><Task4 /></div>}
-          {activeTab === 5 && <div ref={setTaskRef(4)}><Task5 /></div>}
+          {activeTab === 5 && <div ref={setTaskRef(4)}><Task5 isExporting={isExporting} /></div>}
           {activeTab === 6 && <div ref={setTaskRef(5)}><Task6 /></div>}
         </div>
       </main>
@@ -231,11 +235,14 @@ export default function App() {
 
 // --- COMPONENTS ---
 
-function NavButton({ active, onClick, icon, title, subtitle }: NavButtonProps) {
+function NavButton({ active, onClick, icon, title, subtitle, disabled }: NavButtonProps) {
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className={`w-full flex items-center p-4 rounded-2xl transition-all duration-500 group relative overflow-hidden text-left ${
+        disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+      } ${
         active 
           ? 'bg-gradient-to-r from-blue-600/90 to-sky-500/90 shadow-[0_0_20px_rgba(56,189,248,0.3)] text-white border border-sky-400/30' 
           : 'hover:bg-white/5 text-slate-400 hover:text-white border border-transparent'
@@ -808,7 +815,7 @@ const wheelDataMap: Record<string, any> = {
 
 const wheelDataList = [wheelDataMap.CREAR, wheelDataMap.PRESERVAR, wheelDataMap.ACEPTAR, wheelDataMap.REMOVER];
 
-function Task5() {
+function Task5({ isExporting = false }: { isExporting?: boolean }) {
   const [viewMode, setViewMode] = useState<'chart' | 'table'>('chart');
 
   return (
@@ -830,13 +837,15 @@ function Task5() {
         <div className="flex bg-white/60 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 shadow-sm shrink-0">
           <button 
             onClick={() => setViewMode('chart')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${viewMode === 'chart' ? 'bg-[#0A192F] text-white shadow-md' : 'text-slate-500 hover:text-[#0A192F] hover:bg-slate-100'}`}
+            disabled={isExporting}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${isExporting ? 'opacity-50 cursor-not-allowed' : ''} ${viewMode === 'chart' ? 'bg-[#0A192F] text-white shadow-md' : 'text-slate-500 hover:text-[#0A192F] hover:bg-slate-100'}`}
           >
             <PieChartIcon size={18} /> Vista Gráfico
           </button>
           <button 
             onClick={() => setViewMode('table')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${viewMode === 'table' ? 'bg-[#0A192F] text-white shadow-md' : 'text-slate-500 hover:text-[#0A192F] hover:bg-slate-100'}`}
+            disabled={isExporting}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${isExporting ? 'opacity-50 cursor-not-allowed' : ''} ${viewMode === 'table' ? 'bg-[#0A192F] text-white shadow-md' : 'text-slate-500 hover:text-[#0A192F] hover:bg-slate-100'}`}
           >
             <Table size={18} /> Vista Tabla
           </button>
@@ -923,6 +932,7 @@ function Task5() {
       ) : (
         // --- VISTA DE TABLA MATRIZ ---
         <div className="bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-xl border border-slate-200 overflow-hidden animate-in fade-in duration-500">
+          <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gradient-to-r from-[#0A192F] to-blue-900 text-white">
@@ -968,6 +978,7 @@ function Task5() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>
@@ -995,7 +1006,8 @@ function Task6() {
       {/* NEWSPAPER CONTAINER */}
       <div className="bg-[#FAF9F6] text-[#0A192F] p-8 md:p-12 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] rounded-sm border border-slate-300 relative overflow-hidden">
         {/* Paper texture overlay */}
-        <div className="absolute inset-0 opacity-40 pointer-events-none mix-blend-multiply" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/paper-fibers.png')" }}></div>
+        {/* Paper texture — uses a subtle CSS pattern instead of remote image to avoid CORS issues during PDF export */}
+        <div className="absolute inset-0 opacity-[0.15] pointer-events-none mix-blend-multiply" style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px)" }}></div>
         
         <div className="relative z-10">
           {/* HEADER / MASTHEAD */}
