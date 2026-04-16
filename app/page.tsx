@@ -175,43 +175,6 @@ export default function App() {
           />
         </nav>
 
-        {/* Export PDF Button */}
-        <div className="px-6 mb-4">
-          <button
-            onClick={handleExport}
-            disabled={isExporting}
-            className={`w-full flex items-center justify-center gap-3 p-4 rounded-2xl transition-all duration-500 relative overflow-hidden text-left border ${
-              isExporting
-                ? 'bg-sky-900/40 border-sky-400/30 cursor-wait'
-                : 'bg-gradient-to-r from-emerald-600/80 to-teal-500/80 hover:from-emerald-500/90 hover:to-teal-400/90 border-emerald-400/30 hover:shadow-[0_0_20px_rgba(52,211,153,0.3)] cursor-pointer'
-            }`}
-          >
-            {isExporting ? (
-              <>
-                <Loader2 size={20} className="animate-spin text-sky-300" />
-                <div className="flex flex-col">
-                  <span className="text-white font-bold text-sm">Exportando...</span>
-                  <span className="text-sky-300 text-xs font-medium">{progress}% completado</span>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="p-2 bg-white/20 rounded-xl">
-                  <FileDown size={20} className="text-white" />
-                </div>
-                <div>
-                  <span className="text-white font-bold text-sm block">Exportar PDF</span>
-                  <span className="text-emerald-200/70 text-[10px] font-medium">Las 6 tareas completas</span>
-                </div>
-              </>
-            )}
-            {/* Progress bar */}
-            {isExporting && (
-              <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-sky-400 to-emerald-400 transition-all duration-500" style={{ width: `${progress}%` }}></div>
-            )}
-          </button>
-        </div>
-
         <div className="p-8 text-xs text-center text-slate-500 font-medium">
           <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent mb-6"></div>
           Presentación Ejecutiva Estratégica <br/> <span className="text-sky-400/70">Visión 2026</span>
